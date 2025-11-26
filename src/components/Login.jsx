@@ -2,11 +2,11 @@ import { useFormik } from "formik";
 import { useContext, useState } from "react"
 import axios from "axios";
 
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 function Login() {
-    const { setToken } = useContext(AuthContext);
+    const { setToken, setUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
@@ -33,12 +33,29 @@ function Login() {
             setLoading(true);
             try {
                 const resp = await axios.post("http://localhost:3000/auth/login", values)
+                const respData = resp?.data ?? null;
                 //if (resp?.data?.status)
-                if (resp != null && resp.data != null) {
-                    // Store token in both context and localStorage
-                    setToken(resp.data.token);
-                    // localStorage.setItem("token", resp.data.token);
+                if (respData != null) {
+                    // backend may return token directly or inside data
 
+                    const tokenRaw = respData?.token ?? null;
+                    const token = tokenRaw ? String(tokenRaw).replace(/^Bearer\s+/i, "") : null;
+                    console.log('Login response data:', resp.data, 'extracted token:', token);
+                    if (token) {
+                        setToken(token);
+                        console.log(`http://localhost:3000/users/${resp.userId}`)
+                        const userResp = await axios.get(`http://localhost:3000/users/${respData.userId}`,
+                            {
+                                headers: {
+
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
+
+                        setUser(userResp?.data?.data ?? null)
+                    } else {
+                        console.warn('No token returned from login response');
+                    }
 
                     formik.resetForm();
                     navigate("/home");
@@ -90,6 +107,12 @@ function Login() {
                 />
                 {loading && <span className="ml-2">⏳</span>}
             </form>
+            <p className="mt-4 text-sm text-gray-400">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-blue-500 hover:underline">
+                    Register here
+                </Link>
+            </p>
         </div>
 
 

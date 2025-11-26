@@ -3,46 +3,71 @@ import { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import SongCard from "./SongCard";
 import { AuthContext } from "../context/AuthContext";
+import Search from "./Search";
+import PlaylistSelectModal from "./PlaylistSelectModal";
 
 function Home() {
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
-    const [songs, setSongs] = useState([]);
-    const [loading, setLoading] = useState((true));
-    const fetchSongs = async () => {
-        try {
-            if (!token) {
-                console.log("No token found, redirecting to login");
-                navigate("/login");
-                return;
-            }
-            const resp = await axios.get("http://localhost:3000/track", {
-                headers: {
-                    Authorization: token
-                }
-            });
-            setSongs(resp.data.data)
-        }
-        catch (error) {
-            console.log("Fetch songs error:", error)
-            // If 401 (unauthorized), redirect to login
-            if (error.response?.status === 401) {
-                localStorage.removeItem("token");
-                navigate("/login");
-            }
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [songs, setSongs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const [playlists, setPlaylists] = useState([]);
+    const [modalSong, setModalSong] = useState(null);
+
+    const fetchSongs = async (searchQuery, pageNumber = 1) => {
+        if (!token) {
+            setSongs([]);
+            setPage(1);
+            setTotalPages(1);
+            return;
         }
-        finally {
+
+        setLoading(true);
+
+        try {
+            const resp = await axios.get("http://localhost:3000/track", {
+                headers: { Authorization: `Bearer ${token}` },
+                params: { search: searchQuery, page: pageNumber },
+            });
+
+            const data = resp.data;
+            setSongs(data.data || []);
+            setPage(data.page || 1);
+            setTotalPages(data.totalPages || 1);
+
+        } catch (error) {
+            console.log("Fetch songs error:", error);
+
+            if (error.response?.status === 401) {
+                navigate("/login");
+            }
+        } finally {
             setLoading(false);
         }
+    };
 
-
-    }
+    const fetchPlaylists = async () => {
+        const res = await axios.get("http://localhost:3000/playlist", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        setPlaylists(res.data.data || []);
+    };
 
     useEffect(() => {
-        fetchSongs();
+        if (token) {
+            fetchSongs();
+            fetchPlaylists();
+        }
+    }, [token]);
 
-    }, [])
+    const handleAddToPlaylist = (song) => {
+        setModalSong(song);
+    };
 
     if (loading) {
         return (
@@ -52,23 +77,45 @@ function Home() {
         );
     }
 
-
-
     return (
+        <div className="p-4">
 
-        <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-            {songs.map((song) => (
-                <SongCard
-                    key={song._id} song={song}
+            <Search handleSearch={(query) => fetchSongs(query, 1)} />
 
-                />
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                {songs.map(song => (
+                    <SongCard
+                        key={song._id}
+                        song={song}
+                        onAddToPlaylist={handleAddToPlaylist}
+                    />
+                ))}
+                {/* Pagination */} {totalPages > 1 &&
+                    (<div className="flex justify-center mt-6 gap-4">
+                        <button disabled={page === 1} 
+                        onClick={() => fetchSongs("", page - 1)}
+                        className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50" >
+                            Prev </button>
+                             <span className="text-white">
+                            Page {page} of {totalPages} </span>
+                        <button disabled={page === totalPages}
+                            onClick={() => fetchSongs("", page + 1)}
+                            className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50">
+                            Next </button> </div>)}
+
+
+                {modalSong && (
+                    <PlaylistSelectModal
+                        playlists={playlists}
+                        song={modalSong}
+                        token={token}
+                        onClose={() => setModalSong(null)}
+                    />
+                )}
+            </div>
+
         </div>
     );
 }
 
 export default Home;
-
-
-
-
