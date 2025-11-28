@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 
-function SongCard({ song, onAddToPlaylist }) {
+function SongCard({ song, songs, index, onAddToPlaylist, playlists }) {
 
     const { playSong, togglePlay, currentSong, isPlaying } = useContext(PlayerContext);
 
@@ -12,16 +12,27 @@ function SongCard({ song, onAddToPlaylist }) {
         e.stopPropagation();
 
         if (!currentSong || currentSong._id !== song._id) {
-            playSong(song);
+            playSong(song, songs, index);
         } else {
             togglePlay();
+        }
+    };
+    const alreadyInAllPlaylists = playlists.every(pl =>
+        pl.tracks.some(track => track._id === song._id)
+    );
+
+    const handleAddClick = (e) => {
+        e.stopPropagation();
+        if (!alreadyInAllPlaylists) {
+            onAddToPlaylist(song);
         }
     };
 
     return (
         <div
-            onClick={() => playSong(song)}
-            className="bg-gray-800 rounded-xl p-4 shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={() => playSong(song, songs, index)}
+            className={`rounded-xl p-4 shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer' 
+             ${isThisSongPlaying ? "bg-blue-800" : "bg-gray-800"}`}
         >
             <img
                 src={song.coverUrl}
@@ -42,10 +53,8 @@ function SongCard({ song, onAddToPlaylist }) {
                 </button>
 
                 <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onAddToPlaylist(song); // pass song to Home
-                    }}
+                    onClick={handleAddClick}
+                    disabled={alreadyInAllPlaylists}
                     className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white"
                 >
                     Add to Playlist

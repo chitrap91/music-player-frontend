@@ -1,170 +1,186 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useFormik } from "formik";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import { PlayerContext } from "../context/PlayerContext";
 
 function PlaylistDetails() {
-  const { id } = useParams();
-  const { token } = useContext(AuthContext);
-  const [playList, setPlayList] = useState(null);
-  const [allTracks, setAllTracks] = useState([]);
-  const [filteredTracks, setFilteredTracks] = useState([]);
+    const { id } = useParams();
+    const { token } = useContext(AuthContext);
+    const { playSong, currentSong, isPlaying, togglePlay } = useContext(PlayerContext);
 
-  // Fetch playlist details
-  const fetchPlayLists = async () => {
-    try {
-      const res = await axios.get(`http://localhost:3000/playlist/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPlayList(res.data.data);
-    } catch (err) {
-      console.log("Error fetching playlist:", err);
-    }
-  };
+    const [playlist, setPlaylist] = useState(null);
+    const [allTracks, setAllTracks] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch all tracks
-  const fetchAllTracks = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/track", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAllTracks(res.data.data);
-      setFilteredTracks(res.data.data); // Initially show all tracks
-    } catch (err) {
-      console.log("Error fetching tracks:", err);
-    }
-  };
-
-  // Add track to playlist
-  const addTrackToPlaylist = async (trackId) => {
-    try {
-      const res = await axios.post(
-        `http://localhost:3000/playlist/${id}/add-track`,
-        { trackId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setPlayList(res.data.data);
-    } catch (err) {
-      console.log("Error adding track:", err);
-    }
-  };
-
-  // Remove track from playlist
-  const removeTrackFromPlaylist = async (trackId) => {
-    try {
-      const res = await axios.delete(
-        `http://localhost:3000/playlist/${id}/remove-track`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { trackId },
+    // Fetch playlist details
+    const fetchPlaylist = async () => {
+        try {
+            const res = await axios.get(`http://localhost:3000/playlist/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setPlaylist(res.data.data);
+        } catch (err) {
+            console.log("Error fetching playlist:", err);
         }
-      );
-      setPlayList(res.data.data);
-    } catch (err) {
-      console.log("Error removing track:", err);
-    }
-  };
+    };
 
-  // Search form using useFormik
-  const formik = useFormik({
-    initialValues: { query: "" },
-    onSubmit: async (values) => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3000/track?search=${values.query}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setFilteredTracks(res.data.data);
-      } catch (err) {
-        console.log("Error searching tracks:", err);
-      }
-    },
-  });
+    // Fetch all tracks
+    const fetchAllTracks = async () => {
+        try {
+            const res = await axios.get("http://localhost:3000/track", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setAllTracks(res.data.data || []);
+        } catch (err) {
+            console.log("Error fetching tracks:", err);
+        }
+    };
 
-  useEffect(() => {
-    fetchPlayLists();
-    fetchAllTracks();
-  }, []);
+    useEffect(() => {
+        if (token) {
+            fetchPlaylist();
+            fetchAllTracks();
+        }
+    }, [token]);
 
-  return (
-    <div className="p-4">
-      <div className="max-w-3xl mx-auto bg-gray-800 text-white rounded-lg p-6 shadow-md">
-        <h1 className="text-3xl font-bold mb-4 text-center">
-          {playList ? playList.name : "Loading..."}
-        </h1>
+    // Add / Remove Tracks
+    const addTrack = async (trackId) => {
+        try {
+            const res = await axios.post(
+                `http://localhost:3000/playlist/${id}/add-track`,
+                { trackId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setPlaylist(res.data.data);
+        } catch (err) {
+            console.log(err);
+            alert(err.response?.data?.message || "Error adding track");
+        }
+    };
 
-        {playList && (
-          <>
-            
-            {/* Search Tracks */}
-            <form
-              onSubmit={formik.handleSubmit}
-              className="mb-4 flex gap-2"
-            >
-              <input
-                type="text"
-                name="query"
-                placeholder="Search songs..."
-                value={formik.values.query}
-                onChange={formik.handleChange}
-                className="flex-1 px-3 py-2 rounded text-gray-900"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Search
-              </button>
-            </form>
+    const removeTrack = async (trackId) => {
+        try {
+            const res = await axios.delete(
+                `http://localhost:3000/playlist/${id}/remove-track`,
+                { headers: { Authorization: `Bearer ${token}` }, data: { trackId } }
+            );
+            setPlaylist(res.data.data);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
-            {/* Tracks in Playlist */}
-            <h2 className="text-2xl font-semibold mb-3">Tracks in Playlist</h2>
-            {playList.tracks.length === 0 && (
-              <p className="text-gray-400 mb-4">No tracks added yet</p>
+    // Filter tracks for search
+    const filteredTracks = allTracks.filter((t) =>
+        t.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const isPlayingTrack = (track) =>
+        currentSong?._id === track._id && isPlaying;
+
+    return (
+        <div className="p-4 max-w-5xl mx-auto">
+            {playlist ? (
+                <>
+                    {/* Playlist Header */}
+                    <div className="flex items-center gap-6 mb-6 bg-gray-800 p-6 rounded-lg shadow-md">
+                        <div className="w-48 h-48 bg-gray-600 rounded-lg overflow-hidden">
+                            <img
+                                src={playlist.coverUrl || "/default_playlist.png"}
+                                alt={playlist.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div>
+                            <h1 className="text-4xl font-bold mb-2">{playlist.name}</h1>
+                            <p className="text-gray-400 mb-2">{playlist.description}</p>
+                            <p className="text-gray-400">
+                                {playlist.tracks.length} {playlist.tracks.length === 1 ? "song" : "songs"}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Search Tracks */}
+                    <input
+                        type="text"
+                        placeholder="Search tracks..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full mb-4 px-4 py-2 rounded text-gray-900"
+                    />
+
+                    {/* Tracks Table */}
+                    <div className="bg-gray-800 rounded-lg overflow-hidden shadow-md">
+                        <table className="w-full">
+                            <thead className="bg-gray-700">
+                                <tr>
+                                    <th className="text-left p-3">Title</th>
+                                    <th className="text-left p-3">Artist</th>
+                                    <th className="text-left p-3">Album</th>
+                                    <th className="text-left p-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {playlist.tracks.map((track,index) => (
+                                    <tr
+                                        key={track._id}
+                                        className={`hover:bg-gray-700 ${isPlayingTrack(track) ? "bg-green-700" : ""}`}
+                                    >
+                                        <td className="p-3">{track.title}</td>
+                                        <td className="p-3">{track.artist}</td>
+                                        <td className="p-3">{track.album}</td>
+                                        <td className="p-3 flex gap-2">
+                                            <button
+                                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+                                                onClick={() =>
+                                                    currentSong?._id === track._id ? togglePlay() : playSong(track,index)
+                                                }
+                                            >
+                                                {isPlayingTrack(track) ? "Pause" : "Play"}
+                                            </button>
+                                            <button
+                                                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                                                onClick={() => removeTrack(track._id)}
+                                            >
+                                                Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Add Tracks Section */}
+                    <h2 className="text-2xl font-semibold mt-6 mb-2">Add Tracks</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {filteredTracks.map((track) => {
+                            const alreadyAdded = playlist.tracks.some((t) => t._id === track._id);
+                            return (
+                                <div
+                                    key={track._id}
+                                    className="bg-gray-700 p-3 rounded flex justify-between items-center"
+                                >
+                                    <span>{track.title}</span>
+                                    {!alreadyAdded && (
+                                        <button
+                                            onClick={() => addTrack(track._id)}
+                                            className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
+                                        >
+                                            Add
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </>
+            ) : (
+                <p>Loading playlist...</p>
             )}
-            <ul className="space-y-2 mb-6">
-              {playList.tracks.map((track) => (
-                <li
-                  key={track._id}
-                  className="flex justify-between items-center bg-gray-700 p-3 rounded"
-                >
-                  <span>{track.title || track.songName || "Untitled"}</span>
-                  <button
-                    onClick={() => removeTrackFromPlaylist(track._id)}
-                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            {/* Add Tracks */}
-            <h2 className="text-2xl font-semibold mb-3">Add Tracks</h2>
-            <ul className="space-y-2">
-              {filteredTracks.map((track) => (
-                <li
-                  key={track._id}
-                  className="flex justify-between items-center bg-gray-700 p-3 rounded"
-                >
-                  <span>{track.title || track.songName || "Untitled"}</span>
-                  {!playList.tracks.find((t) => t._id === track._id) && (
-                    <button
-                      onClick={() => addTrackToPlaylist(track._id)}
-                      className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
-                    >
-                      Add
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
 
 export default PlaylistDetails;

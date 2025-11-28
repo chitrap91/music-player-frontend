@@ -10,9 +10,13 @@ export const PlayerProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [playlist, setPlaylist] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const playSong = (song) => {
+  const playSong = (song, playlistContext = [], index = 0) => {
     setCurrentSong(song);
+    setPlaylist(playlistContext);
+    setCurrentIndex(index);
     setIsPlaying(true);
   };
 
@@ -23,32 +27,45 @@ export const PlayerProvider = ({ children }) => {
     setIsPlaying(!isPlaying);
   };
 
+  const playNext = () => {
+    if (!playlist.length) return;
+    const nextIndex = (currentIndex + 1) % playlist.length;
+    setCurrentIndex(nextIndex);
+    setCurrentSong(playlist[nextIndex]);
+    setIsPlaying(true);
+  };
+
+  const playPrev = () => {
+    if (!playlist.length) return;
+    const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
+    setCurrentIndex(prevIndex);
+    setCurrentSong(playlist[prevIndex]);
+    setIsPlaying(true);
+  };
+
   const onTimeUpdate = () => {
-    const current = audioRef.current.currentTime;
-    const total = audioRef.current.duration;
-    setProgress(current);
-    setDuration(total);
+    if (!audioRef.current) return;
+    setProgress(audioRef.current.currentTime);
+    setDuration(audioRef.current.duration || 0);
   };
 
   const handleSeek = (e) => {
     const time = Number(e.target.value);
-    audioRef.current.currentTime = time;
+    if (audioRef.current) audioRef.current.currentTime = time;
     setProgress(time);
   };
 
   const handleVolume = (e) => {
     const vol = Number(e.target.value);
+    if (audioRef.current) audioRef.current.volume = vol;
     setVolume(vol);
-    audioRef.current.volume = vol;
   };
 
   const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return "00:00";
+    if (!seconds || isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
@@ -73,58 +90,76 @@ export const PlayerProvider = ({ children }) => {
         progress,
         duration,
         volume,
+        playNext,
+        playPrev,
+        playlist,
         handleSeek,
         handleVolume,
+        currentIndex,
+        formatTime,
       }}
     >
       {children}
 
       {currentSong && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 p-4 h-50 text-white shadow-lg rounded-t-xl">
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-3xl bg-gray-900/90 backdrop-blur-md p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-4 z-50">
 
-          {/* Main Bar: Song Info + Progress + Play */}
-          <div className="flex items-center justify-center gap-6">
+          {/* Song Info */}
+          <div className="flex items-center gap-4 flex-1">
+            <img
+              src={currentSong.coverUrl}
+              alt={currentSong.title}
+              className="w-16 h-16 rounded-lg object-cover"
+            />
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold">{currentSong.title}</h3>
+              <p className="text-gray-300 text-sm">{currentSong.artist}</p>
+            </div>
+          </div>
 
-            {/* Song Info */}
-            <div className="flex-1 text-center">
-              <h3 className="text-lg font-bold">{currentSong.title}</h3>
-              <p className="text-blue-300 text-sm">{currentSong.artist}</p>
+          {/* Controls */}
+          <div className="flex flex-col items-center flex-1 w-full md:w-auto">
+            <div className="flex items-center gap-4 mb-2">
+              <button
+                onClick={playPrev}
+                className="text-white hover:text-blue-400 text-2xl"
+              >
+                ⏮
+              </button>
+
+              <button
+                onClick={togglePlay}
+                className="text-white hover:text-blue-400 text-3xl"
+              >
+                {isPlaying ? "❚❚" : "▶"}
+              </button>
+
+              <button
+                onClick={playNext}
+                className="text-white hover:text-blue-400 text-2xl"
+              >
+                ⏭
+              </button>
             </div>
 
-            {/* Progress Slider */}
-            <div className="flex-1">
+            {/* Progress Bar */}
+            <div className="flex items-center gap-2 w-full px-2">
+              <span className="text-gray-300 text-xs">{formatTime(progress)}</span>
               <input
                 type="range"
                 min="0"
-                max={duration}
+                max={duration || 0}
                 value={progress}
                 onChange={handleSeek}
-                className="
-                  w-full h-4 cursor-pointer appearance-none rounded-full
-                  [&::-webkit-slider-runnable-track]:bg-[linear-gradient(to_right,#3b82f6_var(--fill),#4b5563_var(--fill))]
-                  [&::-webkit-slider-thumb]:appearance-none h-3 w-3 rounded-full bg-blue-500 shadow
-                  [&::-webkit-slider-thumb]:hover:scale-125 duration-150
-                "
+                className="flex-1 h-1 rounded-lg appearance-none bg-gray-700 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
               />
-              <div className="flex justify-between text-xs text-blue-300 mt-1">
-                <span>{formatTime(progress)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
+              <span className="text-gray-300 text-xs">{formatTime(duration)}</span>
             </div>
-
-            {/* Play / Pause */}
-            <button
-              onClick={togglePlay}
-              className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg active:scale-90 transition"
-            >
-              {isPlaying ? "❚❚" : "▶"}
-            </button>
-
           </div>
 
-          {/* Volume Slider at Bottom Right */}
-          <div className="absolute bottom-4 right-4 flex items-center gap-2">
-            <span className="text-blue-400 text-lg">🔊</span>
+          {/* Volume */}
+          <div className="flex items-center gap-2 flex-1 justify-end">
+            <span className="text-white text-lg">🔊</span>
             <input
               type="range"
               min="0"
@@ -132,18 +167,11 @@ export const PlayerProvider = ({ children }) => {
               step="0.01"
               value={volume}
               onChange={handleVolume}
-              className="
-                w-24 h-1 cursor-pointer appearance-none rounded-full
-                [&::-webkit-slider-runnable-track]:bg-gray-700
-                [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3
-                [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500
-                [&::-webkit-slider-thumb]:hover:scale-125
-                [&::-webkit-slider-thumb]:transition duration-150
-              "
+              className="w-24 h-1 rounded-lg appearance-none bg-gray-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
             />
           </div>
 
+          {/* Hidden Audio Element */}
           <audio
             ref={audioRef}
             onTimeUpdate={onTimeUpdate}

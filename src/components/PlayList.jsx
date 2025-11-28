@@ -21,7 +21,7 @@ function PlayList() {
             <h1 className="text-xl font-bold">Your Playlists</h1>
             <Link to="/playlists/new">
                 <button className="bg-blue-600 text-white px-3 py-1 rounded mt-3">
-                    + Create New Palylist
+                    + Create New Playlist
 
                 </button>
             </Link>

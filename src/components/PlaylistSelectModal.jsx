@@ -25,8 +25,8 @@ function PlaylistSelectModal({ playlists, song, token, onClose }) {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
-                // ✅ Navigate to playlist after adding
-                navigate(`/playlist/${playlistId}`);
+         
+                navigate(`/playlists/${playlistId}`);
 
             } catch (error) {
                 if (error.response?.data?.message === "Song already in playlist") {
