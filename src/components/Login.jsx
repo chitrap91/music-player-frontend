@@ -43,7 +43,9 @@ function Login() {
                     console.log('Login response data:', resp.data, 'extracted token:', token);
                     if (token) {
                         setToken(token);
-                        console.log(`http://localhost:3000/users/${resp.userId}`)
+                        await new Promise(r => setTimeout(r, 50));
+
+                        
                         const userResp = await axios.get(`http://localhost:3000/users/${respData.userId}`,
                             {
                                 headers: {

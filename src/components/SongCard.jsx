@@ -17,8 +17,8 @@ function SongCard({ song, songs, index, onAddToPlaylist, playlists }) {
             togglePlay();
         }
     };
-    const alreadyInAllPlaylists = playlists.every(pl =>
-        pl.tracks.some(track => track._id === song._id)
+    const alreadyInAllPlaylists = (playlists || []).every(pl =>
+        (pl.tracks || []).some(track => track._id === song._id)
     );
 
     const handleAddClick = (e) => {

@@ -24,6 +24,7 @@ function Home() {
             setSongs([]);
             setPage(1);
             setTotalPages(1);
+            navigate("/login");
             return;
         }
 
@@ -52,6 +53,10 @@ function Home() {
     };
 
     const fetchPlaylists = async () => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
         const res = await axios.get("http://localhost:3000/playlist", {
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -59,11 +64,9 @@ function Home() {
     };
 
     useEffect(() => {
-        if (token) {
-            fetchSongs();
-            fetchPlaylists();
-        }
-    }, [token]);
+        fetchSongs(searchQuery, 1);
+        fetchPlaylists();
+    }, []);
 
     const handleAddToPlaylist = (song) => {
         setModalSong(song);
@@ -80,10 +83,13 @@ function Home() {
     return (
         <div className="p-4">
 
-            <Search handleSearch={(query) => fetchSongs(query, 1)} />
+            <Search handleSearch={(query) => {
+                setSearchQuery(query);
+                fetchSongs(query);
+            }} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-                {songs.map((song,index)=> (
+                {songs.map((song, index) => (
                     <SongCard
                         key={song._id}
                         songs={songs}
@@ -92,18 +98,6 @@ function Home() {
                         onAddToPlaylist={handleAddToPlaylist} playlists={playlists}
                     />
                 ))}
-                {/* Pagination */} {totalPages > 1 &&
-                    (<div className="flex justify-center mt-6 gap-4">
-                        <button disabled={page === 1}
-                            onClick={() => fetchSongs("", page - 1)}
-                            className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50" >
-                            Prev </button>
-                        <span className="text-white">
-                            Page {page} of {totalPages} </span>
-                        <button disabled={page === totalPages}
-                            onClick={() => fetchSongs("", page + 1)}
-                            className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50">
-                            Next </button> </div>)}
 
 
                 {modalSong && (
@@ -114,6 +108,22 @@ function Home() {
                         onClose={() => setModalSong(null)}
                     />
                 )}
+                {/* Pagination */}
+                <div className="flex justify-center mt-8 mb-32">
+                    {totalPages > 1 &&
+                        (<div className="flex justify-center items-center mt-6 gap-4">
+                            <button disabled={page === 1}
+                                onClick={() => fetchSongs(searchQuery, page - 1)}
+                                className="px-4 py-2 bg-gray-700 text-white text-xl rounded disabled:opacity-50" >
+                                Prev </button>
+                            <span className="text-white text-xl">
+                                Page {page} of {totalPages} </span>
+                            <button disabled={page === totalPages}
+                                onClick={() => fetchSongs(searchQuery, page + 1)}
+                                className="px-4 py-2 bg-gray-700 text-white text-xl rounded disabled:opacity-50">
+                                Next </button> </div>)}
+                </div>
+
             </div>
 
         </div>

@@ -1,13 +1,14 @@
 import { useContext, useState } from "react"
 import { FaHeart, FaHome, FaMusic } from "react-icons/fa"
 import { IoMdPerson } from "react-icons/io"
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { AuthContext } from "../context/AuthContext"
 
 function Navbar() {
     const { user, setUser, setToken } = useContext(AuthContext);
 
     const [showMenu, setShowMenu] = useState(false);
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         setUser(null);
@@ -15,11 +16,12 @@ function Navbar() {
         // localStorage.removeItem("token");
         // localStorage.removeItem("user");
         setShowMenu(false);
+        navigate("/login", { replace: true });
     }
 
     return (
 
-        <nav className="bg-gray-900 text-gray-300 shadow-md">
+        <nav className="fixed top-0 left-0 w-full z-50 bg-gray-900 text-gray-300 shadow-md">
             <div className="max-w-7xl mx-auto w-full p-4 h-16 flex justify-between items-center">
                 <div className="text-white text-2xl font-bold"> My Player </div>
                 <div className="flex gap-2 space-x-6 text-lg">
@@ -27,7 +29,7 @@ function Navbar() {
                         <FaHome />
                         <span>Home</span>
                     </Link>
-                
+
                     <Link to="/playlists" className="hover:text-white flex items-center gap-2">
                         <FaHeart />
                         <span>Playlists</span>

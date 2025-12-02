@@ -10,6 +10,7 @@ import PlayList from "./components/PlayList"
 
 import CreatePlayList from "./components/CreatePlayList"
 import PlaylistDetails from "./components/PlaylistDetails"
+import Profile from "./components/Profile"
 
 
 
@@ -21,7 +22,7 @@ function App() {
     <>
       <BrowserRouter>
 
-        <div className="bg-gray-950  h-screen text-white">
+        <div className="bg-gray-950  min-h-screen text-white">
           <Navbar />
           {/* <div className="p-6 text-center text-2xl">
             🎵 Welcome to My Music Player
@@ -31,10 +32,11 @@ function App() {
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/home" element={<Home />} />
             <Route path="/playlists" element={<PlayList />} />
             <Route path="/playlists/new" element={<CreatePlayList />} />
-            <Route path="/playlists/:id" element={<PlaylistDetails/>} />
+            <Route path="/playlists/:id" element={<PlaylistDetails />} />
           </Routes>
         </div >
       </BrowserRouter>

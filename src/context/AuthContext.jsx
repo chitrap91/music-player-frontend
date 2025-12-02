@@ -24,7 +24,7 @@ function AuthProvider({ children }) {
 
     // every time user changes, save to localStorage
     useEffect(() => {
-        if (user) localStorage.setItem("user", JSON.stringify(user));
+        if (user) localStorage.setItem("user", JSON.stringify(user)); else localStorage.removeItem("user");
     }, [user]);
 
 

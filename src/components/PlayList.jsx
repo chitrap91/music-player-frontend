@@ -1,23 +1,29 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 function PlayList() {
-
+    const navigate = useNavigate();
+    const { token } = useContext(AuthContext);
     const [playLists, setPlaylists] = useState([]);
 
     useEffect(() => {
-        fetchPlayLists()
+        if (token) {
+            fetchPlayLists()
+        } else {
+            navigate("/login");
+        }
     }, [])
 
     const fetchPlayLists = async () => {
         const res = await axios.get("http://localhost:3000/playlist/");
-        setPlaylists(res.data.data|| 0)
+        setPlaylists(res.data.data || 0)
     }
 
     return (
 
-        <div className="p-4">
+        <div className="max-w-4xl mx-auto p-6">
             <h1 className="text-xl font-bold">Your Playlists</h1>
             <Link to="/playlists/new">
                 <button className="bg-blue-600 text-white px-3 py-1 rounded mt-3">
@@ -31,7 +37,7 @@ function PlayList() {
                 {playLists.map((p) => (
                     < Link key={p._id} to={`/playlists/${p._id}`}>
                         <div className="border p-2 rounded">
-                            {p.name} ({p.tracks.length||0} Songs)
+                            {p.name} ({p.tracks.length || 0} Songs)
                         </div>
 
                     </Link>

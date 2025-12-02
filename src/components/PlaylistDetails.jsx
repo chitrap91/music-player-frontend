@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { PlayerContext } from "../context/PlayerContext";
 
 function PlaylistDetails() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const { token } = useContext(AuthContext);
     const { playSong, currentSong, isPlaying, togglePlay } = useContext(PlayerContext);
@@ -41,8 +42,12 @@ function PlaylistDetails() {
         if (token) {
             fetchPlaylist();
             fetchAllTracks();
+        } else {
+            setPlaylist(null);
+            setAllTracks([]);
+            navigate("/login");
         }
-    }, [token]);
+    }, []);
 
     // Add / Remove Tracks
     const addTrack = async (trackId) => {
@@ -122,7 +127,7 @@ function PlaylistDetails() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {playlist.tracks.map((track,index) => (
+                                {playlist.tracks.map((track, index) => (
                                     <tr
                                         key={track._id}
                                         className={`hover:bg-gray-700 ${isPlayingTrack(track) ? "bg-green-700" : ""}`}
@@ -134,7 +139,7 @@ function PlaylistDetails() {
                                             <button
                                                 className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
                                                 onClick={() =>
-                                                    currentSong?._id === track._id ? togglePlay() : playSong(track,index)
+                                                    currentSong?._id === track._id ? togglePlay() : playSong(track, index)
                                                 }
                                             >
                                                 {isPlayingTrack(track) ? "Pause" : "Play"}
@@ -155,7 +160,7 @@ function PlaylistDetails() {
                     {/* Add Tracks Section */}
                     <h2 className="text-2xl font-semibold mt-6 mb-2">Add Tracks</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {filteredTracks.map((track) => {
+                        {/* {filteredTracks.map((track) => {
                             const alreadyAdded = playlist.tracks.some((t) => t._id === track._id);
                             return (
                                 <div
@@ -173,7 +178,23 @@ function PlaylistDetails() {
                                     )}
                                 </div>
                             );
-                        })}
+                        })} */}
+                        {filteredTracks
+                            .filter((track) => !playlist.tracks.some((t) => t._id === track._id))
+                            .map((track) => (
+                                <div
+                                    key={track._id}
+                                    className="bg-gray-700 p-3 rounded flex justify-between items-center"
+                                >
+                                    <span>{track.title}</span>
+                                    <button
+                                        onClick={() => addTrack(track._id)}
+                                        className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            ))}
                     </div>
                 </>
             ) : (

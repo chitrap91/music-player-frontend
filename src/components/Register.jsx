@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useFormik } from "formik";
-import { useState} from "react";
+import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -52,15 +52,7 @@ function Register() {
                 setLoading(false);
             }
         }
-
-
-
     })
-
-
-
-
-
     return (
         <div className="max-w-md mx-auto mt-10 p-6 border border-gray-300 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>

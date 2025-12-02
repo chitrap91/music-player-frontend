@@ -9,12 +9,12 @@ import { PlayerProvider } from './context/PlayerContext.jsx';
 
 createRoot(document.getElementById('root')).render(
 
-  <PlayerProvider>
-    <AuthProvider>
+  <AuthProvider>
+    <PlayerProvider>
       <StrictMode>
         <App />
       </StrictMode>
-    </AuthProvider>
+    </PlayerProvider>
+  </AuthProvider>
 
-  </PlayerProvider>
 );
