@@ -21,6 +21,7 @@ function Home() {
 
     const fetchSongs = async (searchQuery, pageNumber = 1) => {
         if (!token) {
+            setLoading(false);
             setSongs([]);
             setPage(1);
             setTotalPages(1);

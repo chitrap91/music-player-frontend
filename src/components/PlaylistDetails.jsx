@@ -160,25 +160,6 @@ function PlaylistDetails() {
                     {/* Add Tracks Section */}
                     <h2 className="text-2xl font-semibold mt-6 mb-2">Add Tracks</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {/* {filteredTracks.map((track) => {
-                            const alreadyAdded = playlist.tracks.some((t) => t._id === track._id);
-                            return (
-                                <div
-                                    key={track._id}
-                                    className="bg-gray-700 p-3 rounded flex justify-between items-center"
-                                >
-                                    <span>{track.title}</span>
-                                    {!alreadyAdded && (
-                                        <button
-                                            onClick={() => addTrack(track._id)}
-                                            className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
-                                        >
-                                            Add
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })} */}
                         {filteredTracks
                             .filter((track) => !playlist.tracks.some((t) => t._id === track._id))
                             .map((track) => (
