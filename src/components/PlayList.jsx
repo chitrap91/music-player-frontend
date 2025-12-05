@@ -14,7 +14,7 @@ function PlayList() {
         } else {
             navigate("/login");
         }
-    }, [])
+    }, [playLists])
 
     const fetchPlayLists = async () => {
         const res = await axios.get("http://localhost:3000/playlist/");

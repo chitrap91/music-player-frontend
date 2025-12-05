@@ -8,13 +8,17 @@ import { PlayerProvider } from './context/PlayerContext.jsx';
 
 
 createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <AuthProvider>
+      
+      <PlayerProvider>
 
-  <AuthProvider>
-    <PlayerProvider>
-      <StrictMode>
         <App />
-      </StrictMode>
-    </PlayerProvider>
-  </AuthProvider>
+
+      </PlayerProvider>
+    </AuthProvider>
+  </StrictMode>
+
 
 );
+
