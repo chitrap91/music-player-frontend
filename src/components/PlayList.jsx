@@ -11,10 +11,8 @@ function PlayList() {
     useEffect(() => {
         if (token) {
             fetchPlayLists()
-        } else {
-            navigate("/login");
         }
-    }, [playLists])
+    }, [token])
 
     const fetchPlayLists = async () => {
         const res = await axios.get("http://localhost:3000/playlist/");

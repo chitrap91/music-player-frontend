@@ -42,12 +42,8 @@ function PlaylistDetails() {
         if (token) {
             fetchPlaylist();
             fetchAllTracks();
-        } else {
-            setPlaylist(null);
-            setAllTracks([]);
-            navigate("/login");
         }
-    }, []);
+    }, [token, id]);
 
     // Add / Remove Tracks
     const addTrack = async (trackId) => {
