@@ -65,9 +65,11 @@ function Home() {
     };
 
     useEffect(() => {
-        fetchSongs(searchQuery, 1);
-        fetchPlaylists();
-    }, []);
+        if (token) {
+            fetchSongs(searchQuery, 1);
+            fetchPlaylists();
+        }
+    }, [token]);
 
     const handleAddToPlaylist = (song) => {
         setModalSong(song);
