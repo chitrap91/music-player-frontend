@@ -94,7 +94,7 @@ function Register() {
                     {formik.errors.password ? <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div> : null}
                 </div>
                 <input
-                    className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition text-gray-800 duration-200"
+                    className="w-full bg-blue-500 py-2 px-4 rounded hover:bg-blue-600 transition text-gray-800 duration-200"
                     type="submit"
                     disabled={loading}
                     value={loading ? "Registering..." : "Register"}

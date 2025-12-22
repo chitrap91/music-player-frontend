@@ -1,23 +1,25 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import axios from "axios";
 
-const CommentContext = createContext();
-const { token } = useContext(AuthContext)
+export const CommentContext = createContext();
+
 
 export const CommentProvider = ({ children }) => {
-    const [comments, setComments] = useState({});
+    const { token } = useContext(AuthContext)
+    const [comments, setComments] = useState([]);
 
-    const fetchCommments = async (trackId) => {
+    const fetchComments = async (trackId) => {
         if (!trackId) return;
         try {
 
-            const res = await axios.get('http:localhost:3000/${trackId}/comments', {
+            const res = await axios.get(`http://localhost:3000/track/${trackId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            setComments(res.data.data || [])
+            setComments(res.data.data.comments|| [])
         }
         catch (err) {
             console.log("Error fetching comments:", err);
@@ -26,7 +28,7 @@ export const CommentProvider = ({ children }) => {
 
     const addComment = async (trackId, commentText) => {
         try {
-            const res = await axios.post("http:localhost:3000/${trackId}/comments", {
+            const res = await axios.post(`http://localhost:3000/track/${trackId}/comments`, {
                 comment: commentText
             }, {
                 headers: {
@@ -48,9 +50,9 @@ export const CommentProvider = ({ children }) => {
     }
 
     return (
-        <CommentContext.Provider value={{ comments, fetchCommments, addComment }}>
+        <CommentContext.Provider value={{ comments, fetchComments, addComment }}>
             {children}
-        </CommentContext.Provider>              
+        </CommentContext.Provider>
 
     )
 }

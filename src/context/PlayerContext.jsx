@@ -1,6 +1,8 @@
 import axios from "axios";
 import { createContext, useState, useRef, useEffect, useContext, use } from "react";
 import { AuthContext } from "./AuthContext";
+import CommentContext from "./CommentContext";
+import CommentModal from "../components/CommentModal";
 
 export const PlayerContext = createContext();
 
@@ -20,9 +22,12 @@ export const PlayerProvider = ({ children }) => {
   const [repeatMode, setRepeatMode] = useState("none");
   const [playlistQueue, setPlaylistQueue] = useState([]);
   const [likes, setLikes] = useState([]);
-  const [comments, setComments] = useState([]);
-  const [commentModal, setCommentModal] = useState(false);
-  
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+
+  const { comments, fetchComments, addComment } = useContext(CommentContext);
+
+
+
 
 
   /** SHUFFLE ARRAY */
@@ -212,6 +217,9 @@ export const PlayerProvider = ({ children }) => {
         "Message:", error.message
       );
 
+
+
+
       // Revert optimistic update on error
       setLikes(prevLikes => {
         if (prevLikes.includes(trackId)) {
@@ -222,6 +230,30 @@ export const PlayerProvider = ({ children }) => {
       });
     }
   };
+
+
+  // comment context integration
+  useEffect(() => {
+    if (currentSong && currentSong._id) {
+      fetchComments(currentSong._id);
+    }
+  }, [currentSong]);
+
+  const openCommentModal = () => {
+    setIsCommentModalOpen(true);
+  }
+  const closeCommentModal = () => {
+    setIsCommentModalOpen(false);
+  }
+
+  const handleAddComment = async (text) => {
+
+    if (currentSong && currentSong._id) {
+      await addComment(currentSong._id, text);
+      await fetchComments(currentSong._id);
+
+    }
+  }
 
 
 
@@ -305,6 +337,10 @@ export const PlayerProvider = ({ children }) => {
         setRepeatMode,
         likes,
         handleLike,
+        comments,
+        isCommentModalOpen,
+        handleAddComment,
+        closeCommentModal
       }}
     >
       {children}
@@ -379,6 +415,8 @@ export const PlayerProvider = ({ children }) => {
             </div>
 
 
+
+
             {/* PROGRESS BAR */}
             <div className="flex items-center gap-2 w-full px-2">
               <span className="text-gray-300 text-xs">{formatTime(progress)}</span>
@@ -413,8 +451,28 @@ export const PlayerProvider = ({ children }) => {
             onTimeUpdate={onTimeUpdate}
             onLoadedMetadata={(e) => setDuration(e.target.duration)}
           />
+          <button
+            onClick={openCommentModal}
+            className="text-white text-xl"
+          >
+            💬
+          </button>
+
+
+
         </div>
+
+
       )}
+
+
+      <CommentModal
+        trackId={currentSong?._id}
+        isOpen={isCommentModalOpen}
+        onClose={closeCommentModal}
+        onAdd={handleAddComment}
+      />
+
     </PlayerContext.Provider>
   );
 };
