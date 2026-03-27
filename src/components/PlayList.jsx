@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { api } from "../config/axios.config";
 
 function PlayList() {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ function PlayList() {
     }, [token])
 
     const fetchPlayLists = async () => {
-        const res = await axios.get("http://localhost:3000/playlist/");
+        const res = await api.get("/playlist/");
         setPlaylists(res.data.data || 0)
     }
 

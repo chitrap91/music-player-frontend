@@ -5,6 +5,7 @@ import SongCard from "./SongCard";
 import { AuthContext } from "../context/AuthContext";
 import Search from "./Search";
 import PlaylistSelectModal from "./PlaylistSelectModal";
+import { api } from "../config/axios.config";
 
 function Home() {
     const navigate = useNavigate();
@@ -32,8 +33,7 @@ function Home() {
         setLoading(true);
 
         try {
-            const resp = await axios.get("http://localhost:3000/track", {
-                headers: { Authorization: `Bearer ${token}` },
+            const resp = await api.get("/track", {
                 params: { search: searchQuery, page: pageNumber },
             });
 
@@ -58,9 +58,7 @@ function Home() {
             navigate("/login");
             return;
         }
-        const res = await axios.get("http://localhost:3000/playlist", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/playlist");
         setPlaylists(res.data.data || []);
     };
 

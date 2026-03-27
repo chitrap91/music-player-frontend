@@ -4,7 +4,7 @@ import axios from 'axios';
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null)
     const [token, setToken] = useState(null);
 
     // one-time load from localStorage
@@ -39,14 +39,14 @@ function AuthProvider({ children }) {
         }
     }, [token]);
 
-    // configure axios default Authorization header whenever token changes
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${String(token).replace(/^Bearer\s+/i, "")}`;
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-        }
-    }, [token]);
+    // // configure axios default Authorization header whenever token changes
+    // useEffect(() => {
+    //     if (token) {
+    //         axios.defaults.headers.common['Authorization'] = `Bearer ${String(token).replace(/^Bearer\s+/i, "")}`;
+    //     } else {
+    //         delete axios.defaults.headers.common['Authorization'];
+    //     }
+    // }, [token]);
 
     return (
         <AuthContext.Provider value={{ user, setUser, token, setToken }}>

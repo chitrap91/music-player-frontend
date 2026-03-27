@@ -3,6 +3,7 @@ import { createContext, useState, useRef, useEffect, useContext, use } from "rea
 import { AuthContext } from "./AuthContext";
 import CommentContext from "./CommentContext";
 import CommentModal from "../components/CommentModal";
+import { api } from "../config/axios.config";
 
 export const PlayerContext = createContext();
 
@@ -56,10 +57,9 @@ export const PlayerProvider = ({ children }) => {
     setIsPlaying(true);
 
     if (token) {
-      await axios.post(
-        "http://localhost:3000/track/recent",
-        { trackId: song._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.post(
+        "/track/recent",
+        { trackId: song._id }
       );
     }
   };
@@ -150,13 +150,7 @@ export const PlayerProvider = ({ children }) => {
     if (!currentSong?._id) return;
 
     try {
-      const res = await axios.get(
-        `http://localhost:3000/track/download/${currentSong._id}`,
-        {
-          responseType: "blob",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api.get(`/track/download/${currentSong._id}`);
 
       const blob = new Blob([res.data]);
       const url = window.URL.createObjectURL(blob);
@@ -190,8 +184,8 @@ export const PlayerProvider = ({ children }) => {
 
     try {
       console.log("Posting like request:", { trackId, token: token.substring(0, 10) + "..." });
-      const res = await axios.post(
-        `http://localhost:3000/track/${trackId}/like`,
+      const res = await api.post(
+        `/track/${trackId}/like`,
         {},
         {
           headers: {
@@ -298,10 +292,7 @@ export const PlayerProvider = ({ children }) => {
 
     const fetchLikes = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/user/likes", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+        const res = await api.get("/user/likes");
         setLikes(res.data.data.likes.map(id => id.toString()));
       } catch (error) {
         console.error("Error fetching likes:", error);

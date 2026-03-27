@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { api } from "../config/axios.config";
 
 function CreatePlaylist() {
     const navigate = useNavigate();
@@ -24,13 +25,7 @@ function CreatePlaylist() {
         onSubmit: async (values) => {
             try {
 
-                await axios.post("http://localhost:3000/playlist", values, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-
-                    }
-
-                })
+                await api.post("/playlist", values)
                 navigate("/playlists");
 
             }

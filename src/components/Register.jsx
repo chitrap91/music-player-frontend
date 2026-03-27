@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+import { api } from "../config/axios.config";
 
 function Register() {
     const navigate = useNavigate();
@@ -34,7 +35,7 @@ function Register() {
             setLoading(true);
             try {
 
-                const res = await axios.post("http://localhost:3000/auth/register", values)
+                const res = await api.post("/auth/register", values)
                 // localStorage.setItem("user", JSON.stringify(res.data.user));
 
                 formik.resetForm();

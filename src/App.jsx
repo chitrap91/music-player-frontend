@@ -6,11 +6,9 @@ import ProductedRoute from "./context/ProtectedRoute"
 import Navbar from "./components/Navbar"
 import PlayList from "./components/PlayList"
 
-
-
-import CreatePlayList from "./components/CreatePlayList"
 import PlaylistDetails from "./components/PlaylistDetails"
 import Profile from "./components/Profile"
+import CreatePlaylist from "./components/CreatePlaylist"
 
 
 
@@ -35,7 +33,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/home" element={<Home />} />
             <Route path="/playlists" element={<PlayList />} />
-            <Route path="/playlists/new" element={<CreatePlayList />} />
+            <Route path="/playlists/new" element={<CreatePlaylist />} />
             <Route path="/playlists/:id" element={<PlaylistDetails />} />
           </Routes>
         </div >

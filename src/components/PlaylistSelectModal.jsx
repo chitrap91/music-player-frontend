@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { api } from "../config/axios.config";
 
 function PlaylistSelectModal({ playlists, song, token, onClose }) {
     const [selected, setSelected] = React.useState([]);
@@ -19,13 +20,12 @@ function PlaylistSelectModal({ playlists, song, token, onClose }) {
             const playlistId = selected[i];
 
             try {
-                await axios.post(
-                    `http://localhost:3000/playlist/${playlistId}/add-track`,
-                    { trackId: song._id },
-                    { headers: { Authorization: `Bearer ${token}` } }
+                await api.post(
+                    `/playlist/${playlistId}/add-track`,
+                    { trackId: song._id }
                 );
 
-         
+
                 navigate(`/playlists/${playlistId}`);
 
             } catch (error) {

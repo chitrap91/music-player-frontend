@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { PlayerContext } from "../context/PlayerContext";
 import axios from "axios";
 import SongCard from "./SongCard";
+import { api } from "../config/axios.config";
 
 function Profile() {
     const { user, token } = useContext(AuthContext);
@@ -19,12 +20,8 @@ function Profile() {
     // Fetch profile
     const fetchProfile = async () => {
         try {
-            const res = await axios.get(
-                `http://localhost:3000/users/profile/${user._id}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+            const res = await api.get(
+                `/users/profile/${user._id}`);
             setProfile(res.data.data);
         } catch (error) {
             console.log("Error fetching profile:", error);
@@ -34,12 +31,7 @@ function Profile() {
     // Fetch recently played
     const fetchRecentSongs = async () => {
         try {
-            const res = await axios.get(
-                `http://localhost:3000/users/recent/${user._id}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+            const res = await api.get(`/users/recent/${user._id}`);
 
             setRecentSongs(res.data.recentSongs || []);
         } catch (error) {

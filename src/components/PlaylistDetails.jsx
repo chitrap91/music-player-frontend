@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { PlayerContext } from "../context/PlayerContext";
+import { api } from "../config/axios.config";
 
 function PlaylistDetails() {
     const navigate = useNavigate();
@@ -17,9 +18,7 @@ function PlaylistDetails() {
     // Fetch playlist details
     const fetchPlaylist = async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/playlist/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await api.get(`/playlist/${id}`);
             setPlaylist(res.data.data);
         } catch (err) {
             console.log("Error fetching playlist:", err);
@@ -29,9 +28,7 @@ function PlaylistDetails() {
     // Fetch all tracks
     const fetchAllTracks = async () => {
         try {
-            const res = await axios.get("http://localhost:3000/track", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await api.get("/track");
             setAllTracks(res.data.data || []);
         } catch (err) {
             console.log("Error fetching tracks:", err);
@@ -48,10 +45,9 @@ function PlaylistDetails() {
     // Add / Remove Tracks
     const addTrack = async (trackId) => {
         try {
-            const res = await axios.post(
-                `http://localhost:3000/playlist/${id}/add-track`,
-                { trackId },
-                { headers: { Authorization: `Bearer ${token}` } }
+            const res = await api.post(
+                `/playlist/${id}/add-track`,
+                { trackId }
             );
             setPlaylist(res.data.data);
         } catch (err) {
@@ -62,10 +58,10 @@ function PlaylistDetails() {
 
     const removeTrack = async (trackId) => {
         try {
-            const res = await axios.delete(
-                `http://localhost:3000/playlist/${id}/remove-track`,
-                { headers: { Authorization: `Bearer ${token}` }, data: { trackId } }
-            );
+            const res = await api.delete(
+                `/playlist/${id}/remove-track`, {
+                data: { trackId }
+            });
             setPlaylist(res.data.data);
         } catch (err) {
             console.log(err);

@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { api } from "../config/axios.config";
 
 function Login() {
     const { setToken, setUser } = useContext(AuthContext);
@@ -32,7 +33,7 @@ function Login() {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const resp = await axios.post("http://localhost:3000/auth/login", values)
+                const resp = await api.post("/auth/login", values)
                 const respData = resp?.data ?? null;
                 //if (resp?.data?.status)
                 if (respData != null) {
@@ -45,8 +46,8 @@ function Login() {
                         setToken(token);
                         await new Promise(r => setTimeout(r, 50));
 
-                        
-                        const userResp = await axios.get(`http://localhost:3000/users/${respData.userId}`,
+
+                        const userResp = await api.get(`/users/${respData.userId}`,
                             {
                                 headers: {
 
