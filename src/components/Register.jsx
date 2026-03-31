@@ -45,8 +45,23 @@ function Register() {
 
             }
             catch (error) {
-                console.log(error)
-                alert("Registration failed. Please check your details.");
+                console.error(error);
+
+                let message = "Registration failed. Please check your details.";
+                if (axios.isAxiosError(error)) {
+                    if (error.response) {
+                        message = error.response.data?.message || `Server error ${error.response.status}`;
+                    } else if (error.request) {
+                        message = "Network Error: cannot reach backend. Is your API server running and CORS enabled?";
+                    } else {
+                        message = error.message;
+                    }
+                }
+
+                alert(message);
+            }
+            finally {
+                setLoading(false);
             }
 
             finally {

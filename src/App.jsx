@@ -8,7 +8,8 @@ import PlayList from "./components/PlayList"
 
 import PlaylistDetails from "./components/PlaylistDetails"
 import Profile from "./components/Profile"
-import CreatePlaylist from "./components/CreatePlaylist"
+import CreatePlaylist from "./components/CreatePlayList"
+
 
 
 
