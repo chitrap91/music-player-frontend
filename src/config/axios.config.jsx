@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-    baseURL: import.meta.env.MUSIC_BACKEND_BASE_URL || 'http://localhost:3000', // Use environment variables for flexibility
+    baseURL: import.meta.env.VITE_MUSIC_BACKEND_BASE_URL || 'http://localhost:3000', // Use environment variables for flexibility
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
