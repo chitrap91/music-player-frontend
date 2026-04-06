@@ -1,16 +1,62 @@
-# React + Vite
+# Music Streaming Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend app for the music streaming project, built with React + Vite.
 
-Currently, two official plugins are available:
+## Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Netlify: [https://ornate-twilight-62d8ce.netlify.app/](https://ornate-twilight-62d8ce.netlify.app/)
 
-## React Compiler
+## Repositories
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend GitHub: [https://github.com/chitrap91/music-player-frontend](https://github.com/chitrap91/music-player-frontend)
+- Backend GitHub: [https://github.com/chitrap91/music-player-backend](https://github.com/chitrap91/music-player-backend)
 
-## Expanding the ESLint configuration
+## What This Frontend Supports
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- User registration and login
+- Home page with song browsing and search
+- Playlist management (create playlist, add/remove songs)
+- Like and comment actions on tracks
+- User profile view
+
+## Tech Stack
+
+- React 19
+- Vite
+- React Router
+- Axios
+- Formik
+- Tailwind CSS
+
+## Important Architecture Notes
+
+- This frontend talks to the backend API using `VITE_MUSIC_BACKEND_BASE_URL`.
+- Sample audio files and related media are served from AWS S3 (through track URLs returned by backend APIs).
+- User profile and app data (users, playlists, likes, comments, recently played) are stored in MongoDB via the backend service.
+
+## Environment Variables
+
+Create a `.env` file in `front-end/`:
+
+```env
+VITE_MUSIC_BACKEND_BASE_URL=http://localhost:3000
+```
+
+For Netlify, set the same key in Site Configuration -> Environment Variables and redeploy.
+
+## Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+App runs at: `http://localhost:5173`
+
+## Build for Production
+
+```bash
+npm run build
+npm run preview
+```
+
