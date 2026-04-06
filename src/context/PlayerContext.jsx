@@ -288,12 +288,13 @@ export const PlayerProvider = ({ children }) => {
 
 
   useEffect(() => {
-    if (!token || !currentSong) return;
+    if (!token) return;
 
     const fetchLikes = async () => {
       try {
-        const res = await api.get("/user/likes");
-        setLikes(res.data.data.likes.map(id => id.toString()));
+        const res = await api.get("/track/liked");
+        const likedIds = res?.data?.data?.likes || [];
+        setLikes(likedIds.map(id => id.toString()));
       } catch (error) {
         console.error("Error fetching likes:", error);
       }
@@ -337,7 +338,10 @@ export const PlayerProvider = ({ children }) => {
       {children}
 
       {currentSong && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-3xl bg-gray-900/90 backdrop-blur-md p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-4 z-50">
+        <div
+          data-testid="player-bar"
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-3xl bg-gray-900/90 backdrop-blur-md p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-4 z-50"
+        >
 
           {/* Song Info */}
           <div className="flex items-center gap-4 flex-1">
@@ -355,14 +359,15 @@ export const PlayerProvider = ({ children }) => {
           {/* Controls */}
           <div className="flex flex-col items-center flex-1 w-full md:w-auto">
             <div className="flex items-center gap-4 mb-2">
-              <button onClick={playPrev} className="text-white text-2xl">⏮</button>
-              <button onClick={togglePlay} className="text-white text-3xl">
+              <button data-testid="player-prev-button" onClick={playPrev} className="text-white text-2xl">⏮</button>
+              <button data-testid="player-play-toggle-button" onClick={togglePlay} className="text-white text-3xl">
                 {isPlaying ? "❚❚" : "▶"}
               </button>
-              <button onClick={playNext} className="text-white text-2xl">⏭</button>
+              <button data-testid="player-next-button" onClick={playNext} className="text-white text-2xl">⏭</button>
 
               {/* SHUFFLE BUTTON — FIXED */}
               <button
+                data-testid="player-shuffle-button"
                 onClick={() => {
                   setShuffle((prev) => {
                     const active = !prev;
@@ -382,12 +387,13 @@ export const PlayerProvider = ({ children }) => {
               >
                 {shuffle ? "🔀" : "➡️"}
               </button>
-              <button onClick={() => handleLike(currentSong._id)}>
+              <button data-testid="player-like-button" onClick={() => handleLike(currentSong._id)}>
                 {likes.includes(currentSong._id.toString()) ? "❤️" : "🤍"}
               </button>
 
               {/* REPEAT BUTTON */}
               <button
+                data-testid="player-repeat-button"
                 className="text-white text-2xl"
                 onClick={() => {
                   setRepeatMode((prev) =>
@@ -402,7 +408,7 @@ export const PlayerProvider = ({ children }) => {
                     : "🔂1"}
               </button>
 
-              <button onClick={handleDownload}>⬇️</button>
+              <button data-testid="player-download-button" onClick={handleDownload}>⬇️</button>
             </div>
 
 
@@ -443,6 +449,7 @@ export const PlayerProvider = ({ children }) => {
             onLoadedMetadata={(e) => setDuration(e.target.duration)}
           />
           <button
+            data-testid="player-comment-button"
             onClick={openCommentModal}
             className="text-white text-xl"
           >

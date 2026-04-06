@@ -4,22 +4,16 @@ import axios from 'axios';
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-    const [user, setUser] = useState(null)
-    const [token, setToken] = useState(null);
-
-    // one-time load from localStorage
-    useEffect(() => {
+    const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem("user");
-        if (savedUser) setUser(JSON.parse(savedUser));
-
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    const [token, setToken] = useState(() => {
         const savedToken = localStorage.getItem("token");
-        if (savedToken) {
-            // normalize token (strip leading 'Bearer ' if present)
-            const normalized = String(savedToken).replace(/^Bearer\s+/i, "");
-            setToken(normalized);
-        }
-
-    }, []);
+        if (!savedToken) return null;
+        // normalize token (strip leading 'Bearer ' if present)
+        return String(savedToken).replace(/^Bearer\s+/i, "");
+    });
 
 
     // every time user changes, save to localStorage

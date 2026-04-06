@@ -63,10 +63,6 @@ function Register() {
             finally {
                 setLoading(false);
             }
-
-            finally {
-                setLoading(false);
-            }
         }
     })
     return (
@@ -109,12 +105,13 @@ function Register() {
                     />
                     {formik.errors.password ? <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div> : null}
                 </div>
-                <input
-                    className="w-full bg-blue-500 py-2 px-4 rounded hover:bg-blue-600 transition text-gray-800 duration-200"
+                <button
+                    className="w-full bg-blue-500 py-2 px-4 rounded hover:bg-blue-600 transition text-gray-800 duration-200 disabled:opacity-60"
                     type="submit"
                     disabled={loading}
-                    value={loading ? "Registering..." : "Register"}
-                />
+                >
+                    {loading ? "Registering..." : "Register"}
+                </button>
 
             </form>
         </div>

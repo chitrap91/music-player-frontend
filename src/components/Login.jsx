@@ -102,12 +102,13 @@ function Login() {
                     />
                     {formik.errors.password ? <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div> : null}
                 </div>
-                <input
-                    className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex justify-center items-center"
+                <button
+                    className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex justify-center items-center disabled:opacity-60"
                     type="submit"
-                    value={loading ? "Logging in..." : "Login"}
                     disabled={loading}
-                />
+                >
+                    {loading ? "Logging in..." : "Login"}
+                </button>
                 {loading && <span className="ml-2">⏳</span>}
             </form>
             <p className="mt-4 text-sm text-gray-400">

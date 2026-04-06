@@ -8,7 +8,7 @@ import PlayList from "./components/PlayList"
 
 import PlaylistDetails from "./components/PlaylistDetails"
 import Profile from "./components/Profile"
-import CreatePlaylist from "./components/CreatePlayList"
+import CreatePlaylist from "./components/CreatePlaylist"
 
 
 
@@ -32,7 +32,14 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/home" element={<Home />} />
+            <Route
+              path="/home"
+              element={
+                <ProductedRoute>
+                  <Home />
+                </ProductedRoute>
+              }
+            />
             <Route path="/playlists" element={<PlayList />} />
             <Route path="/playlists/new" element={<CreatePlaylist />} />
             <Route path="/playlists/:id" element={<PlaylistDetails />} />
